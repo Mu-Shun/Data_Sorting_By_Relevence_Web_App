@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</head>
+<body>
+	<nav class="navbar navbar-default">
+		<h1 href="#">Data Exploration</h1>
+	</nav>
+	<div class="jumbotron">
+		<form class="form-group" action="/" method="post">
+			<label>Databases</label>
+			<select class="custom-select" type = 'selection' name = 'selection' value = 'selection'>
+			  <option selected>Select a Database</option>
+			  <option value="WCC">World Database</option>
+			  <option value="FA">Films & Actors Database</option>
+			  <option value="COD">Customers' Order Database</option>
+			</select>
+			<label>Keywords</label>
+			<input type="text" name="name" class="form-control" value="Input Keywords" onFocus="if(value==defaultValue){value='';this.style.color='#000'}" onBlur="if(!value){value=defaultValue;this.style.color='#999'}" style="color:#999999"
+><br>
+			<button class="btn btn-primary" type="submit" name="submit" value="add">Search</button>
+<!-- 			<button class="btn btn-danger" type="submit" name="submit" value="delete">Delete</button> -->
+		</form>
+	</div>
+	<div class="container-fluid">
+		{% for table, table_details in result.items() %}
+			<!-- table name -->
+			<nav class="navbar navbar-light bg-light">
+				<a class="navbar-brand" >Table Name: {{ table }} </a>
+			</nav>
+			<!-- table header -->
+			{% if table_details %}
+				<table class="table" style="width:100%">
+				<tr scope="col">
+				    {% for key in dictionary[table]['columns'] %}
+				    <th> {{ key }} </th>
+				    {% endfor %}
+				</tr>
+			{% endif %}
+			<!-- table rows -->
+			{% for dict_item in table_details %}
+				<tr scope="row">
+				    {% for key in dictionary[table]['columns'] %}
+				    {% if dictionary and dict_item[key] and key in dictionary[table]['foreign_key'] %}
+					    <form action="{{ url_for('fk_index') }}" method="post">
+						<td class='clickable-row' method="post">
+							<button btn name='id' value="{{dict_item[key]}}+{{dictionary[table]['foreign_key'][key]['referencing_table']}}+{{data_index}}" style="background: none!important;
+								border: none;padding: 0!important;font-family: arial, sans-serif;
+								color: #4682B4;text-decoration: underline;cursor: pointer;">
+								{{ dict_item[key] }}
+							</button>
+						</td>
+						</form>
+					{% elif dictionary and dict_item[key] and key in dictionary[table]['referenced_key'] %}
+					 	<form action="{{ url_for('pk_index') }}" method="post">
+						<td class='clickable-row' method="post">
+							<button btn name='id' value="{{dict_item[key]}}+{{table}}+{{data_index}}" style="background: none!important;
+								border: none;padding: 0!important;font-family: arial, sans-serif;
+								color: #4682B4;text-decoration: underline;cursor: pointer;">
+								{{ dict_item[key] }}
+						</td>
+						</form>
+					{% elif dict_item[key] %}
+						<td>{{ dict_item[key] }}</td>
+					{% else %}
+						<td> </td>
+					{% endif %}
+				    {% endfor %}
+				</tr>
+			{% endfor %}
+			</table>
+			<br>
+		  {% endfor %}
+	</div>	
+</body>
+</html>
